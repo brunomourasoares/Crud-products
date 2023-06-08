@@ -1,0 +1,2 @@
+INSERT INTO TB_PRODUCTS (id_product, name, price) VALUES (random_uuid(), 'Monitor Dell 27',4600.00);
+INSERT INTO TB_PRODUCTS (id_product, name, price) VALUES (random_uuid(), 'Monitor Samsung 27',3800.00);
