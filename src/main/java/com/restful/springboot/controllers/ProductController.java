@@ -3,12 +3,13 @@ package com.restful.springboot.controllers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,7 +33,7 @@ import jakarta.validation.Valid;
 public class ProductController {
 
     @Autowired
-    ProductService productService;
+    private ProductService productService;
     
     @PostMapping
     public ResponseEntity<ProductModel> createProduct(@RequestBody @Valid ProductRecordDto productRecordDto) {
@@ -42,15 +43,15 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductModel>> getAllProducts() {
-        List<ProductModel> productList = productService.findAll();
-        if (!productList.isEmpty()) {
-            for (ProductModel product : productList) {
+    public ResponseEntity<Page<ProductModel>> getAllProducts(Pageable pageable) {
+        Page<ProductModel> productPage = productService.findAll(pageable);
+        if (!productPage.isEmpty()) {
+            for (ProductModel product : productPage) {
                 UUID id = product.getIdProduct();
                 product.add(linkTo(methodOn(ProductController.class).getOneProduct(id)).withSelfRel());
             }
         }
-        return ResponseEntity.status(HttpStatus.OK).body(productList);
+        return ResponseEntity.status(HttpStatus.OK).body(productPage);
     }
 
     @GetMapping("/{id}")
@@ -59,7 +60,7 @@ public class ProductController {
         if (product0.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found!");
         }
-        product0.get().add(linkTo(methodOn(ProductController.class).getAllProducts()).withRel("Products List"));
+        //product0.get().add(linkTo(methodOn(ProductController.class).getAllProducts()).withRel("Products List"));
         return ResponseEntity.status(HttpStatus.OK).body(product0.get());
     }
     
